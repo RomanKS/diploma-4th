@@ -7,9 +7,15 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var model = require('./models');
+const passport = require('passport');
+require('./config/passport')(passport);
+
 model.sequelize.sync((err)=>{});
 
 var app = express();
+app.use(passport.initialize());
+
+
 
 app.use(logger('dev'));
 app.use(express.json());

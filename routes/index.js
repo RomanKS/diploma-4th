@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var User = require('../models').User;
 var UserType = require('../models').UserType;
+const passport = require('passport');
+const auth = require('./auth');
+
 
 /* GET home page. */
 router.get('/add', function(req, res, next) {
@@ -57,6 +60,53 @@ router.get('/seyHi', function(req, res, next) {
 
 
   res.render('index', { title: 'Express', helloMsg: seyHi});
+});
+
+//token not requered
+// user variable should contain object with "username" and "password"
+// like { "username": "Roman4", "password": "Roman4" }
+// and not like: { "user": { "username": "Roman4", "password": "Roman4" } }
+router.post('/login', auth.optional, function (req, res, next) {
+  const { body: { user } } = req;
+
+
+  return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
+    if(err) {
+      return next(err);
+    }
+
+    if(passportUser) {
+      const user = passportUser;
+      user.token = passportUser.generateJWT();
+
+      return res.json({ user: user.toAuthJSON() });
+    }
+
+    return res.json({error: true});
+  })(req, res, next);
+});
+
+//token requiered
+router.get('/current', auth.required, (req, res, next) => {
+  const id = req.body.id;
+
+  return User.findOne({
+    where: {
+      ID: id
+    }
+  })
+      .then((user) => {
+        if(!user) {
+          return res.sendStatus(400);
+        }
+
+        return res.json({ user: user.toAuthJSON() });
+      });
+});
+
+router.get('/logout', function(req, res, next){
+  req.logout();
+  res.redirect('/');
 });
 
 module.exports = router;
