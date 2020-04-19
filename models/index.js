@@ -16,18 +16,22 @@ var models = {
     UserType: sequelize.import('./usertype'),
     Tap: sequelize.import('./tap'),
     Field: sequelize.import('./field'),
+    TapToField: sequelize.import('./taptofield'),
     Pump: sequelize.import('./pump'),
     WaterringSession: sequelize.import('./waterringsession'),
     HumiditySlice: sequelize.import('./humidityslice'),
     TemperatureSlice: sequelize.import('./temperatureslice')
 };
 
-Object.keys(models).forEach(modelKey => {
-    // Create model associations
-    if ('associate' in models[modelKey]) {
-        models[modelKey].associate(models);
-    }
-});
+
+    Object.keys(models).forEach(modelKey => {
+        // Create model associations
+        if ('associate' in models[modelKey]) {
+            models[modelKey].associate(models);
+        }
+    });
+
+
 
 models.sequelize = sequelize;
 models.Sequelize = Sequelize;
