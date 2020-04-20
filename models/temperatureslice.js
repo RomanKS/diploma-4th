@@ -1,6 +1,6 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('TemperatureSlice', {
-        id: {
+        ID: {
             type: type.STRING,
             primaryKey: true,
             autoIncrement: false

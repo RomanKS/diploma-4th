@@ -16,18 +16,22 @@ var models = {
     UserType: sequelize.import('./usertype'),
     Tap: sequelize.import('./tap'),
     Field: sequelize.import('./field'),
+    TapToField: sequelize.import('./taptofield'),
     Pump: sequelize.import('./pump'),
-    WaterringSession: sequelize.import('./waterringsession'),
+    WateringSession: sequelize.import('./wateringsession'),
     HumiditySlice: sequelize.import('./humidityslice'),
     TemperatureSlice: sequelize.import('./temperatureslice')
 };
 
-Object.keys(models).forEach(modelKey => {
-    // Create model associations
-    if ('associate' in models[modelKey]) {
-        models[modelKey].associate(models);
-    }
-});
+
+    Object.keys(models).forEach(modelKey => {
+        // Create model associations
+        if ('associate' in models[modelKey]) {
+            models[modelKey].associate(models);
+        }
+    });
+
+
 
 models.sequelize = sequelize;
 models.Sequelize = Sequelize;
@@ -41,7 +45,7 @@ models.Sequelize = Sequelize;
 //     tap: sequelize.import(__dirname + '/tap.js'),
 //     field: sequelize.import(__dirname + '/field.js'),
 //     pump: sequelize.import(__dirname + '/pump.js'),
-//     waterringsession: sequelize.import(__dirname + '/waterringsession.js'),
+//     wateringsession: sequelize.import(__dirname + '/wateringsession.js'),
 //     humidityslice: sequelize.import(__dirname + '/humidityslice.js'),
 //     temperatureslice: sequelize.import(__dirname + '/temperatureslice.js')
 // };

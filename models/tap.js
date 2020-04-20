@@ -1,6 +1,6 @@
 module.exports = (sequelize, type) => {
-    return sequelize.define('Field', {
-        id: {
+    const Tap =  sequelize.define('Tap', {
+        ID: {
             type: type.STRING,
             primaryKey: true,
             autoIncrement: false
@@ -8,5 +8,15 @@ module.exports = (sequelize, type) => {
         Name: type.STRING,
         Opened: type.BOOLEAN,
         ControllerID: type.STRING
-    })
+    });
+
+    Tap.associate = (models) => {
+        Tap.belongsToMany(models.Field, {
+            through: 'TapToField',
+            as: 'Field',
+            foreignKey: 'FK_Tap'
+        });
+    };
+
+    return Tap;
 };

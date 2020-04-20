@@ -1,65 +1,268 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../models').User;
+var Tap = require('../models').Tap;
+var Field = require('../models').Field;
+var TapToField = require('../models').TapToField;
 var UserType = require('../models').UserType;
+var WateringSession = require('../models').WateringSession;
+var Pump = require('../models').Pump;
 const passport = require('passport');
 const auth = require('./auth');
 
 
+
+
+
+router.get('/TapToField', function (req, res, next) {
+    // TapToField.create({
+    //     FieldID: "tap1",
+    //     TapID: "tap1"
+    // }).then(Tap => {
+    //     res.json({success: true});
+    // });
+    /*TapToField.create({
+        FK_Field: "tap1",
+        FK_Tap: "tap1"
+    }).then(Tap => {
+        res.json({success: true});
+    });*/
+
+    // wateringSession.create({
+    //     ID: "newWetSes",
+    //     FK_Field: "tap1",
+    //     StartDate: new Date(),
+    //     EndDate: new Date()
+    // }).then(Tap => {
+    //     res.json({success: 'true1111'});
+    // });
+
+    // Pump.create({
+    //     ID: "Pump",
+    //     Opened: "0"
+    // }).then(Tap => {
+    //     res.json({success: 'true1111'});
+    // });
+
+    let WateringConstants = require('../common/constants/watering');
+
+    let type   = req.query.type,
+        action = req.query.action;
+
+    if (type == WateringConstants.humidityWateringType) {
+        type = WateringConstants.humidityWateringType;
+    } else {
+        type = WateringConstants.dateWateringType;
+    }
+
+    if (action === WateringConstants.actionOpen) {
+        action = WateringConstants.actionOpen;
+    } else {
+        action = WateringConstants.actionClose;
+    }
+
+    var WateringController = require('../controllers/Watering').startWatering(action, type);
+
+    WateringController.then(resp => {
+        if (!resp["error"]) {
+            resp = resp.getResponseJson();
+        }
+
+        req.app.io.emit('response', resp);
+        res.json({t:1, response: resp});
+    });
+
+});
+
+
+router.get('/fillData', async function (req, res, next) {
+    var models           = require('../models'),
+        Tap              = models.Tap,
+        Pump             = models.Pump,
+        WateringSession = models.WateringSession,
+        Field            = models.Field,
+        HumiditySlice    = models.HumiditySlice,
+        TemperatureSlice = models.TemperatureSlice,
+        TapToField       = models.TapToField,
+        Log              = require('../common/Error/WateringSessionError');
+
+    await Tap.findOrCreate({
+        where: {
+            ID: "tap_1"
+        },
+        defaults: {
+            ID: "tap_1",
+            Name: "tap_name_1",
+            Opened: "0",
+            ControllerID: "tapController_1"
+        }
+    });
+
+    await Tap.findOrCreate({
+        where: {
+            ID: "tap_2"
+        },
+        defaults: {
+            ID: "tap_2",
+            Name: "tap_name_2",
+            Opened: "0",
+            ControllerID: "tapController_2"
+        }
+    });
+
+    await Pump.findOrCreate({
+        where: {
+            ID: "pump_1"
+        },
+        defaults: {
+            ID: "pump_1",
+            Opened: "0"
+        }
+    });
+
+    await Field.findOrCreate({
+        where: {
+            ID: "field_1"
+        },
+        defaults: {
+            ID: "field_1",
+            Name: "field_name_1"
+        }
+    });
+
+    await WateringSession.findOrCreate({
+        where: {
+            ID: "wateringSession_1"
+        },
+        defaults: {
+            ID: "wateringSession_1",
+            FK_Field: "field_1",
+            StartDate: new Date(),
+            EndDate: new Date(),
+            Humidity: "50"
+        }
+    });
+
+    await HumiditySlice.findOrCreate({
+        where: {
+            ID: "humiditySlice_1"
+        },
+        defaults: {
+            ID: "humiditySlice_1",
+            FK_Field: "field_1",
+            Humidity: "70",
+            Date: new Date()
+        }
+    });
+
+    await TemperatureSlice.findOrCreate({
+        where: {
+            ID: "temperatureSlice_1"
+        },
+        defaults: {
+            ID: "temperatureSlice_1",
+            Temperature: "25",
+            Date: new Date()
+        }
+    });
+
+    await TapToField.findOrCreate({
+        where: {
+            FK_Tap: "tap_1"
+        },
+        defaults: {
+            FK_Field: "field_1",
+            FK_Tap: "tap_1",
+        }
+    });
+
+    await TapToField.findOrCreate({
+        where: {
+            FK_Tap: "tap_2"
+        },
+        defaults: {
+            FK_Field: "field_1",
+            FK_Tap: "tap_2",
+        }
+    });
+
+    res.json({success: true});
+});
+
+
+
+
+
 /* GET home page. */
 router.get('/add', function(req, res, next) {
-  User.create({
-    UserName: "Roman4",
-    FirstName: "Roman4",
-    LastName: "Roman4",
-    Password: "Roman4",
-    FK_UserType: "SecondType"
-  })
-      .then(user => res.json({user: user}));
-  /*req.app.dbModels['UserType'].create({
-    ID: "SecondType",
-    Code: "123",
-    Type: "RomanType"
-  })
-      .then(UserType => {
-        req.app.dbModels['User'].create({
-          UserName: "Roman",
-          FirstName: "Roman",
-          LastName: "Roman",
-          Password: "Roman",
-          FK_UserType: "SecondType"
-        })
-            .then(user => res.json({UserType: UserType, user: user}));
-      });*/
+    User.create({
+        UserName: "Roman4",
+        FirstName: "Roman4",
+        LastName: "Roman4",
+        Password: "Roman4",
+        FK_UserType: "SecondType"
+    })
+        .then(user => res.json({user: user}));
+    /*req.app.dbModels['UserType'].create({
+      ID: "SecondType",
+      Code: "123",
+      Type: "RomanType"
+    })
+        .then(UserType => {
+          req.app.dbModels['User'].create({
+            UserName: "Roman",
+            FirstName: "Roman",
+            LastName: "Roman",
+            Password: "Roman",
+            FK_UserType: "SecondType"
+          })
+              .then(user => res.json({UserType: UserType, user: user}));
+        });*/
 
 
-  //res.render('index', { title: 'Express', helloMsg: ''});
+    //res.render('index', { title: 'Express', helloMsg: ''});
+});
+
+router.get('/addTapToDo', function (req, res, next) {
+    Tap.create({
+        ID: "tap1",
+        Name: "Name",
+        Opened: "1",
+        ControllerID: "ControllerID"
+    }).then(Tap => {
+        Field.create({
+            ID: "tap1",
+            Name: "Name",
+        }).then(Field => {
+            res.json({success: true});
+        });
+    });
 });
 
 router.get('/find', function(req, res, next) {
 
-  User.findOne({
-    where: {UserName: 'Roman4'}, include: [{
-      model: UserType,
-      as: 'UserType'
-    }]
-  })
-      .then((findedUser) => {
-        // Get the User with Company datas included
-        console.log(findedUser);
-        res.json({findedUser});
+    User.findOne({
+        where: {UserName: 'Roman4'}, include: [{
+            model: UserType,
+            as: 'UserType'
+        }]
+    })
+        .then((findedUser) => {
+            // Get the User with Company datas included
+            console.log(findedUser);
+            res.json({findedUser});
 
-        // Get the company record only
-        // console.log(findedUser.company)
-      })
+            // Get the company record only
+            // console.log(findedUser.company)
+        })
 });
 
 router.get('/seyHi', function(req, res, next) {
-  let name = req.query.name;
-  let seyHi = `Hello, ${name} and welcome to Node.JS`;
+    let name = req.query.name;
+    let seyHi = `Hello, ${name} and welcome to Node.JS`;
 
 
-  res.render('index', { title: 'Express', helloMsg: seyHi});
+    res.render('index', { title: 'Express', helloMsg: seyHi});
 });
 
 //token not requered
@@ -67,46 +270,46 @@ router.get('/seyHi', function(req, res, next) {
 // like { "username": "Roman4", "password": "Roman4" }
 // and not like: { "user": { "username": "Roman4", "password": "Roman4" } }
 router.post('/login', auth.optional, function (req, res, next) {
-  const { body: { user } } = req;
+    const { body: { user } } = req;
 
 
-  return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
-    if(err) {
-      return next(err);
-    }
+    return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
+        if(err) {
+            return next(err);
+        }
 
-    if(passportUser) {
-      const user = passportUser;
-      user.token = passportUser.generateJWT();
+        if(passportUser) {
+            const user = passportUser;
+            user.token = passportUser.generateJWT();
 
-      return res.json({ user: user.toAuthJSON() });
-    }
+            return res.json({ user: user.toAuthJSON() });
+        }
 
-    return res.json({error: true});
-  })(req, res, next);
+        return res.json({error: true});
+    })(req, res, next);
 });
 
 //token requiered
 router.get('/current', auth.required, (req, res, next) => {
-  const id = req.body.id;
+    const id = req.body.id;
 
-  return User.findOne({
-    where: {
-      ID: id
-    }
-  })
-      .then((user) => {
-        if(!user) {
-          return res.sendStatus(400);
+    return User.findOne({
+        where: {
+            ID: id
         }
+    })
+        .then((user) => {
+            if(!user) {
+                return res.sendStatus(400);
+            }
 
-        return res.json({ user: user.toAuthJSON() });
-      });
+            return res.json({ user: user.toAuthJSON() });
+        });
 });
 
 router.get('/logout', function(req, res, next){
-  req.logout();
-  res.redirect('/');
+    req.logout();
+    res.redirect('/');
 });
 
 module.exports = router;

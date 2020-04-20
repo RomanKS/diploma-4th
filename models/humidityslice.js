@@ -1,6 +1,6 @@
 module.exports = (sequelize, type) => {
-    const HumiditySlice =  sequelize.define('user', {
-        id: {
+    const HumiditySlice =  sequelize.define('HumiditySlice', {
+        ID: {
             type: type.STRING,
             primaryKey: true,
             autoIncrement: false
