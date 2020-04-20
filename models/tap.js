@@ -14,7 +14,7 @@ module.exports = (sequelize, type) => {
         Tap.belongsToMany(models.Field, {
             through: 'TapToField',
             as: 'Field',
-            foreignKey: 'FK_Field'
+            foreignKey: 'FK_Tap'
         });
     };
 

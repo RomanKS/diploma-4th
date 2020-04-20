@@ -5,8 +5,7 @@ module.exports = (sequelize, type) => {
             primaryKey: true,
             autoIncrement: false
         },
-        name: type.STRING
-        //FK_Tap: type.STRING
+        Name: type.STRING
     });
 
     Field.associate = function (modules) {
@@ -17,7 +16,7 @@ module.exports = (sequelize, type) => {
         Field.belongsToMany(models.Tap, {
             through: 'TapToField',
             as: 'Tap',
-            foreignKey: 'FK_Tap'
+            foreignKey: 'FK_Field'
         });
     };
 

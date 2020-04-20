@@ -1,6 +1,6 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('Pump', {
-        id: {
+        ID: {
             type: type.STRING,
             primaryKey: true,
             autoIncrement: false

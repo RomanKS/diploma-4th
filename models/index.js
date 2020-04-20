@@ -18,7 +18,7 @@ var models = {
     Field: sequelize.import('./field'),
     TapToField: sequelize.import('./taptofield'),
     Pump: sequelize.import('./pump'),
-    WaterringSession: sequelize.import('./waterringsession'),
+    WateringSession: sequelize.import('./wateringsession'),
     HumiditySlice: sequelize.import('./humidityslice'),
     TemperatureSlice: sequelize.import('./temperatureslice')
 };
@@ -45,7 +45,7 @@ models.Sequelize = Sequelize;
 //     tap: sequelize.import(__dirname + '/tap.js'),
 //     field: sequelize.import(__dirname + '/field.js'),
 //     pump: sequelize.import(__dirname + '/pump.js'),
-//     waterringsession: sequelize.import(__dirname + '/waterringsession.js'),
+//     wateringsession: sequelize.import(__dirname + '/wateringsession.js'),
 //     humidityslice: sequelize.import(__dirname + '/humidityslice.js'),
 //     temperatureslice: sequelize.import(__dirname + '/temperatureslice.js')
 // };

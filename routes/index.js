@@ -5,8 +5,192 @@ var Tap = require('../models').Tap;
 var Field = require('../models').Field;
 var TapToField = require('../models').TapToField;
 var UserType = require('../models').UserType;
+var WateringSession = require('../models').WateringSession;
+var Pump = require('../models').Pump;
 const passport = require('passport');
 const auth = require('./auth');
+
+
+
+
+
+router.get('/TapToField', function (req, res, next) {
+    // TapToField.create({
+    //     FieldID: "tap1",
+    //     TapID: "tap1"
+    // }).then(Tap => {
+    //     res.json({success: true});
+    // });
+    /*TapToField.create({
+        FK_Field: "tap1",
+        FK_Tap: "tap1"
+    }).then(Tap => {
+        res.json({success: true});
+    });*/
+
+    // wateringSession.create({
+    //     ID: "newWetSes",
+    //     FK_Field: "tap1",
+    //     StartDate: new Date(),
+    //     EndDate: new Date()
+    // }).then(Tap => {
+    //     res.json({success: 'true1111'});
+    // });
+
+    // Pump.create({
+    //     ID: "Pump",
+    //     Opened: "0"
+    // }).then(Tap => {
+    //     res.json({success: 'true1111'});
+    // });
+
+    let WateringConstants = require('../common/constants/watering');
+
+    let type   = req.query.type,
+        action = req.query.action;
+
+    if (type == WateringConstants.humidityWateringType) {
+        type = WateringConstants.humidityWateringType;
+    } else {
+        type = WateringConstants.dateWateringType;
+    }
+
+    if (action === WateringConstants.actionOpen) {
+        action = WateringConstants.actionOpen;
+    } else {
+        action = WateringConstants.actionClose;
+    }
+
+    var WateringController = require('../controllers/Watering').startWatering(action, type);
+
+    WateringController.then(resp => {
+        if (!resp["error"]) {
+            resp = resp.getResponseJson();
+        }
+
+        req.app.io.emit('response', resp);
+        res.json({t:1, response: resp});
+    });
+
+});
+
+
+router.get('/fillData', async function (req, res, next) {
+    var models           = require('../models'),
+        Tap              = models.Tap,
+        Pump             = models.Pump,
+        WateringSession = models.WateringSession,
+        Field            = models.Field,
+        HumiditySlice    = models.HumiditySlice,
+        TemperatureSlice = models.TemperatureSlice,
+        TapToField       = models.TapToField,
+        Log              = require('../common/Error/WateringSessionError');
+
+    await Tap.findOrCreate({
+        where: {
+            ID: "tap_1"
+        },
+        defaults: {
+            ID: "tap_1",
+            Name: "tap_name_1",
+            Opened: "0",
+            ControllerID: "tapController_1"
+        }
+    });
+
+    await Tap.findOrCreate({
+        where: {
+            ID: "tap_2"
+        },
+        defaults: {
+            ID: "tap_2",
+            Name: "tap_name_2",
+            Opened: "0",
+            ControllerID: "tapController_2"
+        }
+    });
+
+    await Pump.findOrCreate({
+        where: {
+            ID: "pump_1"
+        },
+        defaults: {
+            ID: "pump_1",
+            Opened: "0"
+        }
+    });
+
+    await Field.findOrCreate({
+        where: {
+            ID: "field_1"
+        },
+        defaults: {
+            ID: "field_1",
+            Name: "field_name_1"
+        }
+    });
+
+    await WateringSession.findOrCreate({
+        where: {
+            ID: "wateringSession_1"
+        },
+        defaults: {
+            ID: "wateringSession_1",
+            FK_Field: "field_1",
+            StartDate: new Date(),
+            EndDate: new Date(),
+            Humidity: "50"
+        }
+    });
+
+    await HumiditySlice.findOrCreate({
+        where: {
+            ID: "humiditySlice_1"
+        },
+        defaults: {
+            ID: "humiditySlice_1",
+            FK_Field: "field_1",
+            Humidity: "70",
+            Date: new Date()
+        }
+    });
+
+    await TemperatureSlice.findOrCreate({
+        where: {
+            ID: "temperatureSlice_1"
+        },
+        defaults: {
+            ID: "temperatureSlice_1",
+            Temperature: "25",
+            Date: new Date()
+        }
+    });
+
+    await TapToField.findOrCreate({
+        where: {
+            FK_Tap: "tap_1"
+        },
+        defaults: {
+            FK_Field: "field_1",
+            FK_Tap: "tap_1",
+        }
+    });
+
+    await TapToField.findOrCreate({
+        where: {
+            FK_Tap: "tap_2"
+        },
+        defaults: {
+            FK_Field: "field_1",
+            FK_Tap: "tap_2",
+        }
+    });
+
+    res.json({success: true});
+});
+
+
+
 
 
 /* GET home page. */
@@ -52,21 +236,6 @@ router.get('/addTapToDo', function (req, res, next) {
         }).then(Field => {
             res.json({success: true});
         });
-    });
-});
-
-router.get('/TapToField', function (req, res, next) {
-    // TapToField.create({
-    //     FieldID: "tap1",
-    //     TapID: "tap1"
-    // }).then(Tap => {
-    //     res.json({success: true});
-    // });
-    TapToField.create({
-        FK_Field: "tap1",
-        FK_Tap: "tap1"
-    }).then(Tap => {
-        res.json({success: true});
     });
 });
 
