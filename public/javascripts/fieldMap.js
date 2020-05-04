@@ -46,7 +46,7 @@ $( document ).ready(function() {
     //setTimeout(() => window.location.reload(), 3000);
 
 
-    $.get("http://localhost:3000/fieldmap/getfielddata", (response, status) => {
+    $.get("https://diploma-4th.herokuapp.com/fieldmap/getfielddata", (response, status) => {
          let fieldsDataArray   = JSON.parse(response.fieldsData),
              wateringData      = JSON.parse(response.wateringData),
              humidityDataArray = JSON.parse(response.humidityData),
