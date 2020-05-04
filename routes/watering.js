@@ -5,7 +5,7 @@ let express            = require('express'),
     Error              = require('../common/Error/Error'),
     log                = new Error(`'Watering' route`);
 
-router.post('/schedulewatering', (req, res, next) => {
+router.post('/schedule', (req, res, next) => {
     let body           = req.body,
         start_millisec = body.start_millisec ? parseInt(body.start_millisec) : null,
         end_millisec   = body.end_millisec ? parseInt(body.end_millisec) : null,
