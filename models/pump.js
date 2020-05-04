@@ -1,10 +1,13 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('Pump', {
         ID: {
-            type: type.STRING,
-            primaryKey: true,
-            autoIncrement: false
+            type: type.UUID,
+            defaultValue: type.UUIDV1,
+            primaryKey: true
         },
-        Opened: type.BOOLEAN
+        Opened: {
+            type: type.BOOLEAN,
+            defaultValue: '0'
+        }
     })
 };
