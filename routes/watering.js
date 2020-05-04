@@ -25,6 +25,9 @@ router.post('/schedulewatering', (req, res, next) => {
             humidity: null,
         };
 
+    console.log(`action in router: ${action}`);
+
+
     if (type == WateringConstants.humidityWateringType) {
         type = WateringConstants.humidityWateringType;
     } else {
@@ -36,6 +39,9 @@ router.post('/schedulewatering', (req, res, next) => {
     } else {
         action = WateringConstants.actionClose;
     }
+
+    console.log(`action after checks: ${action}`);
+
 
     if ((start_millisec && end_millisec && fk_field) || (fk_field && humidity && type == WateringConstants.humidityWateringType) ) {
         //if (true) {

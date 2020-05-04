@@ -14,9 +14,17 @@ let executewateringFlow = async (action, type, WateringSessionModle) => {
 
     wateringSessionResponse = new wateringSessionResponse(action, type);
 
+    console.log(`------actionn: ${action}`);
+
     flag = action === wateringConstants.actionOpen ? '1' : '0';
 
-    WateringSessionModle.InProgress = flag;
+
+    console.log(`------+++actionn: ${action} flag: ${flag}`);
+
+
+    WateringSessionModle.update({
+        InProgress: flag
+    });
     currentPumpModelArray = await models.Pump.findAll();
 
     if (currentPumpModelArray.length) {
@@ -102,14 +110,14 @@ let createAndGetWateringSessionModelWithDepend = async (requestJson) => {
         EndDate: requestJson.endDate,
     });
 
-    WateringSessionModle = await models.WateringSessio.findOne({
+    WateringSessionModle = await models.WateringSession.findAll({
         where: {ID: WateringSessionModle.ID}, include: [{
             model: models.Field,
             as: 'Field'
         }]
     });
 
-    return WateringSessionModle;
+    return WateringSessionModle ? WateringSessionModle[0] : null;
 };
 
 let sendWateringResponseToClient = (response) => {
@@ -171,6 +179,7 @@ let startWatering = async (req, requestJson) => {
         WateringSessionModle = await createAndGetWateringSessionModelWithDepend(requestJson);
 
         if (requestJson.type === wateringConstants.humidityWateringType && WateringSessionModle) {
+            console.log(`action inside: ${requestJson.action}`);
             let res = executewateringFlow(requestJson.action, requestJson.type, WateringSessionModle);
 
             sendWateringResponseToClient(res);
