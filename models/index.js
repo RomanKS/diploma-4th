@@ -5,7 +5,7 @@ var db = {};
 //     host: 'localhost',
 //     dialect: 'mysql'
 // });
-
+//mysql://b1e15cb3c0e42d:a1818308@eu-cdbr-west-03.cleardb.net/heroku_68d2985deee609a?reconnect=true
 const sequelize = new Sequelize('heroku_68d2985deee609a', 'b1e15cb3c0e42d', 'a1818308', {
     host: 'eu-cdbr-west-03.cleardb.net',
     dialect: 'mysql'

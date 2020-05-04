@@ -14,7 +14,7 @@ router.get('/', function(req, res, next) {
 router.post('/registration', (req, res, next) => {
   let body      = req.body,
       user      = null,
-      userType  = null,
+      userType  = body.userType ? body.userType.trim() : null,
       userName  = body.userName ? body.userName.trim() : null,
       firstName = body.firstName ? body.firstName.trim() : null,
       lastName  = body.lastName ? body.lastName.trim() : null,
