@@ -5,7 +5,7 @@ let models            = require('../models'),
     Tap               = models.Tap,
     TapToField        = models.TapToField,
     utils             = require('../common/Helpers/Utils/utils'),
-    WateringError     = require('../common/Error/wateringSessionError'),
+    WateringError     = require('../common/Error/WateringSessionError'),
     wateringConstants = require('../common/constants/watering');
 
 let executewateringFlow = async (action, type, WateringSessionModle) => {
