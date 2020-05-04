@@ -1,8 +1,13 @@
 const Sequelize     = require('sequelize');
 var db = {};
 
-const sequelize = new Sequelize('My_New_DB', 'root', '12345', {
-    host: 'localhost',
+// const sequelize = new Sequelize('My_New_DB', 'root', '12345', {
+//     host: 'localhost',
+//     dialect: 'mysql'
+// });
+
+const sequelize = new Sequelize('heroku_68d2985deee609a', 'b1e15cb3c0e42d', 'a1818308', {
+    host: 'eu-cdbr-west-03.cleardb.net',
     dialect: 'mysql'
 });
 
@@ -24,12 +29,12 @@ var models = {
 };
 
 
-    Object.keys(models).forEach(modelKey => {
-        // Create model associations
-        if ('associate' in models[modelKey]) {
-            models[modelKey].associate(models);
-        }
-    });
+Object.keys(models).forEach(modelKey => {
+    // Create model associations
+    if ('associate' in models[modelKey]) {
+        models[modelKey].associate(models);
+    }
+});
 
 
 
