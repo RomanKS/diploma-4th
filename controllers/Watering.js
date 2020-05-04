@@ -1,9 +1,4 @@
 let models            = require('../models'),
-    WateringSession   = models.WateringSession,
-    FieldModel        = models.Field,
-    Pump              = models.Pump,
-    Tap               = models.Tap,
-    TapToField        = models.TapToField,
     utils             = require('../common/Helpers/Utils/utils'),
     WateringError     = require('../common/Error/WateringSessionError'),
     wateringConstants = require('../common/constants/watering');
@@ -22,7 +17,7 @@ let executewateringFlow = async (action, type, WateringSessionModle) => {
     flag = action === wateringConstants.actionOpen ? '1' : '0';
 
     WateringSessionModle.InProgress = flag;
-    currentPumpModelArray = await Pump.findAll();
+    currentPumpModelArray = await models.Pump.findAll();
 
     if (currentPumpModelArray.length) {
         currentPumpModel = currentPumpModelArray[0];
@@ -37,7 +32,7 @@ let executewateringFlow = async (action, type, WateringSessionModle) => {
         if (WateringSessionModle.Field && WateringSessionModle.Field.ID) {
             fieldID = WateringSessionModle.Field.ID;
 
-            arrayOFTapToFields = await TapToField.findAll({
+            arrayOFTapToFields = await models.TapToField.findAll({
                 where: {
                     FK_Field: fieldID
                 }
@@ -45,7 +40,7 @@ let executewateringFlow = async (action, type, WateringSessionModle) => {
 
             if (arrayOFTapToFields.length) {
                 await utils.asyncForEach(arrayOFTapToFields, async (tapToFieldModel) => {
-                    await Tap.update({
+                    await  models.Tap.update({
                         Opened: flag
                     }, {
                         where: {
@@ -100,16 +95,16 @@ let executewateringFlow = async (action, type, WateringSessionModle) => {
 let createAndGetWateringSessionModelWithDepend = async (requestJson) => {
   let WateringSessionModle = null;
 
-    WateringSessionModle = await WateringSession.create({
+    WateringSessionModle = await models.WateringSession.create({
         FK_Field: requestJson.fk_field,
         Humidity: requestJson.humidity,
         StartDate: requestJson.startDate,
         EndDate: requestJson.endDate,
     });
 
-    WateringSessionModle = await WateringSession.findOne({
+    WateringSessionModle = await models.WateringSessio.findOne({
         where: {ID: WateringSessionModle.ID}, include: [{
-            model: FieldModel,
+            model: models.Field,
             as: 'Field'
         }]
     });
@@ -129,11 +124,44 @@ let sendWateringResponseToClient = (response) => {
     });
 };
 
+let getInProcessWatering = async () => {
+  let inProgressWatering = await models.WateringSession.findAll({
+      where: {
+          InProgress: '1'
+      }
+  });
+
+  return inProgressWatering && inProgressWatering.length ? inProgressWatering[0] : null;
+};
+
+
+let sendFieldDetailData = async (req, res) => {
+    var FieldModel            = models.Field.findAll(),
+        HumiditySliceModel    = models.HumiditySlice.findAll(),
+        WateringSessionModel  = models.WateringSession.findAll(),
+        TemperatureSliceModel = models.TemperatureSlice.findAll(),
+        fieldDataArray        = [];
+
+    [FieldModel, HumiditySliceModel, WateringSessionModel, TemperatureSliceModel] = await Promise.all([FieldModel, HumiditySliceModel, WateringSessionModel, TemperatureSliceModel]);
+
+    FieldModel.forEach((field) => {
+        fieldDataArray.push({
+            Id: field.ID,
+            Name: field.Name,
+            Humidities: getHumidityArray(HumiditySliceModel, field.ID),
+            Temperatures: getTemperatureArray(TemperatureSliceModel),
+            WateringSessions: getWateringSessions(WateringSessionModel, field.ID)
+        });
+    });
+
+    res.json(fieldDataArray);
+};
+
 let startWatering = async (req, requestJson) => {
     let WateringSessionModle = null,
         field                = null;
 
-    field = await FieldModel.findOne({
+    field = await models.Field.findOne({
         where: {
             ID: requestJson.fk_field
         }
@@ -178,7 +206,7 @@ let cancelWatering = async (req, wateringId) => {
     var y = req.app.schedulejob.scheduledJobs['job'].cancel();
 
 
-    WateringSessionModel = await WateringSession.findOne({
+    WateringSessionModel = await models.WateringSession.findOne({
         where: {
             ID: wateringId
         }
@@ -201,91 +229,6 @@ let cancelWatering = async (req, wateringId) => {
         startJobCancelStatus: startJobCancelStatus,
         endJobCancelStatus: endJobCancelStatus
     };
-};
-
-let getInProcessWatering = async () => {
-  let inProgressWatering = await WateringSession.findAll({
-      where: {
-          InProgress: '1'
-      }
-  });
-
-  return inProgressWatering && inProgressWatering.length ? inProgressWatering[0] : null;
-};
-
-let getHumidityArray = (HumiditySliceModel, currentFieldId) => {
-    let arrayOfHumidityForField = HumiditySliceModel.filter(humidity => humidity.FK_Field == currentFieldId),
-        finalHumidityArray      = [];
-
-    if (arrayOfHumidityForField.length) {
-        arrayOfHumidityForField.forEach((humidity) => {
-            finalHumidityArray.push({
-                Id: humidity.ID,
-                Value: humidity.Humidity,
-                Time: new Date(humidity.Date).getTime()
-            });
-        });
-    }
-
-    return finalHumidityArray;
-};
-
-let getTemperatureArray = (TemperatureSliceModel) => {
-    let finalTemperatureArray = [];
-
-    TemperatureSliceModel.forEach((temperature) => {
-       finalTemperatureArray.push({
-          Id: temperature.ID,
-          Value: temperature.Temperature,
-          Time: new Date(temperature.Date).getTime()
-       });
-    });
-
-    return finalTemperatureArray;
-};
-
-let getWateringSessions = (WateringSessionModel, currentFieldId) => {
-  let arrayOfWateringSessionsForField = WateringSessionModel.filter(watering => watering.FK_Field == currentFieldId),
-      finalWateringArray              = [];
-
-  if (arrayOfWateringSessionsForField) {
-      arrayOfWateringSessionsForField.forEach((wateringSession) => {
-          finalWateringArray.push({
-              Id: wateringSession.ID,
-              StartTime: wateringSession.StartDate,
-              EndTime: wateringSession.EndDate,
-              RequiredHumidity: wateringSession.Humidity,
-              InProgress: wateringSession.InProgress
-          });
-      });
-  }
-
-  return finalWateringArray;
-};
-
-let sendFieldDetailData = async (req, res) => {
-    var FieldModel            = models.Field.findAll(),
-        HumiditySliceModel    = models.HumiditySlice.findAll(),
-        WateringSessionModel  = models.WateringSession.findAll(),
-        TemperatureSliceModel = models.TemperatureSlice.findAll(),
-        fieldDataArray        = [];
-
-    [FieldModel, HumiditySliceModel, WateringSessionModel, TemperatureSliceModel] = await Promise.all([FieldModel, HumiditySliceModel, WateringSessionModel, TemperatureSliceModel]);
-
-    console.log(`TemperatureSliceModel: ${JSON.stringify(TemperatureSliceModel)}`);
-
-    //fill up FieldDataArray with field values
-    FieldModel.forEach((field) => {
-        fieldDataArray.push({
-            Id: field.ID,
-            Name: field.Name,
-            Humidities: getHumidityArray(HumiditySliceModel, field.ID),
-            Temperatures: getTemperatureArray(TemperatureSliceModel),
-            WateringSessions: getWateringSessions(WateringSessionModel, field.ID)
-        });
-    });
-
-    res.json(fieldDataArray);
 };
 
 module.exports = {
