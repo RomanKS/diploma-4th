@@ -1,0 +1,195 @@
+.map-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.map-item {
+    height: 400px;
+    width: 100%;
+}
+
+
+.field-stack-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.field-stack-item {
+    height: 100%;
+    width: 33.333%;
+}
+
+.field-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.field-maim-item {
+    width: 97%;
+    height: 80%;
+}
+
+.field-main-item-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.corner-right-line {
+    border-right: 4px solid black;
+}
+
+.field-top {
+    width: 100%;
+    height: 20%;
+}
+
+.field {
+    width: 80%;
+    height: 80%;
+    margin: 0 auto;
+    border: 4px solid black;
+}
+
+.field .field-info {
+    width: 90%;
+    height: 80%;
+    background: lightgreen;
+    margin: 20px auto;
+    overflow-x: auto;
+}
+
+.field-info table {
+    margin: 0 auto;
+}
+
+td {
+    font-size:20px;
+    border: 2px solid black;
+}
+
+.field-bottom-item {
+    width: 100%;
+    height: 20%;
+}
+
+.field-bottom-item-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.bottom-left {
+    width: 50%;
+    height: 94%;
+    float: left;
+}
+
+.bottom-left-main {
+    width: 50%;
+    height: 95%;
+    float: left;
+    border-bottom: 4px solid black;
+}
+
+.bottom-right {
+    width: 50%;
+    height: 95%;
+    float: left;
+    border-bottom: 4px solid black;
+}
+
+.field-bottom-item-container .corner-vertical-line {
+    height: 100%;
+    width: 0px;
+    border-right: 2px solid black;
+    border-left: 2px solid black;
+}
+
+.pump-stack-item {
+    height: 100%;
+    width: 45%;
+}
+
+.pump-maim-item {
+    width: 100%;
+    height: 100%;
+}
+
+.pump-maim-item-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.pump-top {
+    width: 100%;
+    height: 27%;
+}
+
+.pump {
+    width: 98%;
+    height: 70%;
+    margin: 0 auto;
+    border: 4px solid black;
+}
+
+.right-pump-container {
+    height: 100%;
+    width: 55%;
+    display: flex;
+    flex-direction: column;
+}
+
+.right-pump-container .top-space {
+    width: 99%;
+    height: 65%;
+    border-bottom: 4px solid black;
+}
+
+.right-pump-container .bottom-space {
+    width: 100%;
+    height: 35%;
+}
+
+.pump-stack-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+
+}
+
+.tap {
+    width: 24px;
+    height: 24px;
+    background: red;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
+    position:relative;
+    z-index: 10000;
+    margin: -14px auto;
+}
+
+.pump-tap {
+    width: 24px;
+    height: 24px;
+    background: red;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
+    position:relative;
+    z-index: 10000;
+    margin: -14px 0 0 -12px;
+}
+
+

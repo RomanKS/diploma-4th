@@ -1,11 +1,12 @@
 module.exports = (sequelize, type) => {
     var Field =  sequelize.define('Field', {
         ID: {
-            type: type.STRING,
-            primaryKey: true,
-            autoIncrement: false
+            type: type.UUID,
+            defaultValue: type.UUIDV1,
+            primaryKey: true
         },
-        Name: type.STRING
+        Name: type.STRING,
+        Number: type.INTEGER
     });
 
     Field.associate = function (modules) {

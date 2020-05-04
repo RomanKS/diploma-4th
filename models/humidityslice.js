@@ -1,13 +1,13 @@
 module.exports = (sequelize, type) => {
     const HumiditySlice =  sequelize.define('HumiditySlice', {
         ID: {
-            type: type.STRING,
-            primaryKey: true,
-            autoIncrement: false
+            type: type.UUID,
+            defaultValue: type.UUIDV1,
+            primaryKey: true
         },
         Humidity: type.STRING,
         Date: type.DATE,
-        FK_Field: type.STRING
+        FK_Field: type.UUID
     });
 
     HumiditySlice.associate = function (modules) {

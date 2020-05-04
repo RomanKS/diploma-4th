@@ -1,8 +1,8 @@
 class Error {
-    constructor (description, fileName, functionName) {
-        this.description  = description;
-        this.fileName     = fileName;
-        this.functionName = functionName;
+    constructor (fileName, description, functionName) {
+        this.description  = description ? description : null;
+        this.fileName     = fileName ? fileName : null;
+        this.functionName = functionName ? functionName : null;
     }
 
     getDescription () {
@@ -10,19 +10,27 @@ class Error {
     }
 
     getFileName () {
-        return this.description;
+        return this.fileName;
     }
 
     getFunctionName () {
         return this.functionName;
     }
 
+    setDescription (description) {
+        this.description = description;
+    }
+
+    setFunctionName (functionName) {
+        this.functionName = functionName;
+    }
+
     getErrorJson () {
         return {
             'error'        : true,
-            'description'  : this.getDescription,
-            'fileName'     : this.getDescription,
-            'functionName' : this.getDescription
+            'description'  : this.getDescription(),
+            'fileName'     : this.getFileName(),
+            'functionName' : this.getFunctionName()
         }
     }
 }

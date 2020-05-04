@@ -3,15 +3,15 @@ const jwt = require('jsonwebtoken');
 module.exports = (sequelize, type) => {
     const User = sequelize.define('User', {
         ID: {
-            type: type.STRING,
-            primaryKey: true,
-            autoIncrement: false
+            type: type.UUID,
+            defaultValue: type.UUIDV1,
+            primaryKey: true
         },
         UserName: type.STRING,
         FirstName: type.STRING,
         LastName: type.STRING,
         Password: type.STRING,
-        FK_UserType: type.STRING
+        FK_UserType: type.UUID
     });
 
 

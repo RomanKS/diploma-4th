@@ -1,14 +1,18 @@
 module.exports = (sequelize, type) => {
     var WateringSession =  sequelize.define('wateringSession', {
         ID: {
-            type: type.STRING,
-            primaryKey: true,
-            autoIncrement: false
+            type: type.UUID,
+            defaultValue: type.UUIDV1,
+            primaryKey: true
         },
         StartDate: type.DATE,
         EndDate: type.DATE,
-        FK_Field: type.STRING,
-        Humidity: type.STRING
+        FK_Field: type.UUID,
+        Humidity: type.STRING,
+        InProgress: {
+            type: type.BOOLEAN,
+            defaultValue: '0'
+        }
     });
 
     WateringSession.associate = function (modules) {

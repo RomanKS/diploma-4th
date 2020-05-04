@@ -1,12 +1,15 @@
 module.exports = (sequelize, type) => {
     const Tap =  sequelize.define('Tap', {
         ID: {
-            type: type.STRING,
-            primaryKey: true,
-            autoIncrement: false
+            type: type.UUID,
+            defaultValue: type.UUIDV1,
+            primaryKey: true
         },
         Name: type.STRING,
-        Opened: type.BOOLEAN,
+        Opened: {
+            type: type.BOOLEAN,
+            defaultValue: '0'
+        },
         ControllerID: type.STRING
     });
 
