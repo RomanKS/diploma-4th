@@ -1,4 +1,5 @@
-let models = require('../../models');
+let models = require('../../models'),
+    utils  = require('./Utils/utils');
 
 let getHumidityArray = (HumiditySliceModel, currentFieldId) => {
     let arrayOfHumidityForField = HumiditySliceModel.filter(humidity => humidity.FK_Field == currentFieldId),
@@ -71,10 +72,41 @@ let getWateringSessionByFieldNumber = async (inProgressFalg, fieldNumber) => {
     }
 };
 
+let getAllTapsAssociatedWithField = async (fieldId) => {
+    let arrayOfTap         = [],
+        CurrentTap         = null,
+        arrayOFTapToFields = await models.TapToField.findAll({
+        where: {
+            FK_Field: fieldId
+        }
+    });
+
+    if (arrayOFTapToFields.length) {
+        await utils.asyncForEach(arrayOFTapToFields, async (tapToFieldModel) => {
+            CurrentTap = await  models.Tap.findOne({
+                where: {
+                    ID: tapToFieldModel.FK_Tap
+                }
+            });
+
+            arrayOfTap.push(CurrentTap);
+        });
+    }
+
+    return arrayOfTap;
+};
+
+let getTapsNumberConnectingToField = async (fieldId) => {
+    let arrayOfAssociatedTaps = await getAllTapsAssociatedWithField(fieldId);
+
+    return arrayOfAssociatedTaps.map(tap => tap.Number);
+};
 
 module.exports = {
     getHumidityArray : getHumidityArray,
     getTemperatureArray : getTemperatureArray,
     getWateringSessions : getWateringSessions,
-    getWateringSessionByFieldNumber : getWateringSessionByFieldNumber
+    getWateringSessionByFieldNumber : getWateringSessionByFieldNumber,
+    getTapsNumberConnectingToField: getTapsNumberConnectingToField,
+    getAllTapsAssociatedWithField : getAllTapsAssociatedWithField
 };

@@ -12,7 +12,9 @@ const auth = require('./auth');
 
 
 router.get('/', async (req,res,next)=>{
+    let rr = require('../common/Helpers/watering').getTapsNumberConnectingToField;
 
+    let y2 = 0;
     res.render('index', {name: 'Roman'});
 });
 
