@@ -181,7 +181,7 @@ let startWatering = async (req, requestJson) => {
         WateringSessionModle = await createAndGetWateringSessionModelWithDepend(requestJson);
 
         if (WateringSessionModle) {
-            arrayOfTapsAssosiatedWithCurrentField = await utils.getTapsNumberConnectingToField(WateringSessionModle.Field.ID);
+            arrayOfTapsAssosiatedWithCurrentField = await wateringHelper.getTapsNumberConnectingToField(WateringSessionModle.Field.ID);
 
             if (requestJson.type === wateringConstants.humidityWateringType) {
                 console.log(`action inside: ${requestJson.action}`);
