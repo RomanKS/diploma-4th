@@ -10,7 +10,7 @@ let getHumidityArray = (HumiditySliceModel, currentFieldId) => {
             finalHumidityArray.push({
                 Id: humidity.ID,
                 Value: humidity.Humidity,
-                Time: new Date(humidity.Date).getTime()
+                Time: new Date(humidity.Date).toLocaleString('en-US', {timeZone: 'Europe/Moscow'})
             });
         });
     }
@@ -25,7 +25,7 @@ let getTemperatureArray = (TemperatureSliceModel) => {
         finalTemperatureArray.push({
             Id: temperature.ID,
             Value: temperature.Temperature,
-            Time: new Date(temperature.Date).getTime()
+            Time: new Date(temperature.Date).toLocaleString('en-US', {timeZone: 'Europe/Moscow'})
         });
     });
 
@@ -40,8 +40,8 @@ let getWateringSessions = (WateringSessionModel, currentFieldId) => {
         arrayOfWateringSessionsForField.forEach((wateringSession) => {
             finalWateringArray.push({
                 Id: wateringSession.ID,
-                StartTime: new Date(wateringSession.StartDate).getTime(),
-                EndTime: new Date(wateringSession.EndDate).getTime(),
+                StartTime: new Date(wateringSession.StartDate).toLocaleString('en-US', {timeZone: 'Europe/Moscow'}),
+                EndTime: new Date(wateringSession.EndDate).toLocaleString('en-US', {timeZone: 'Europe/Moscow'}),
                 RequiredHumidity: wateringSession.Humidity,
                 InProgress: wateringSession.InProgress
             });
