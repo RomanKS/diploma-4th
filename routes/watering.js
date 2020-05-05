@@ -7,8 +7,8 @@ let express            = require('express'),
 
 router.post('/schedule', (req, res, next) => {
     let body           = req.body,
-        start_millisec = body.start_millisec ? parseInt(body.start_millisec) : null,
-        end_millisec   = body.end_millisec ? parseInt(body.end_millisec) : null,
+        startDateStr   = body.startDateStr ? body.startDateStr.trim() : null,
+        endDateStr     = body.endDateStr ? body.endDateStr.trim() : null,
         startDate      = null,
         endDate        = null,
         type           = body.type ? body.type : null,
@@ -43,12 +43,14 @@ router.post('/schedule', (req, res, next) => {
     console.log(`action after checks: ${action}`);
 
 
-    if ((start_millisec && end_millisec && fk_field) || (fk_field && humidity && type == WateringConstants.humidityWateringType) ) {
+    if ((startDateStr && endDateStr && fk_field) || (fk_field && humidity && type == WateringConstants.humidityWateringType) ) {
         //if (true) {
-         startDate = new Date(start_millisec);
-         endDate   = new Date(end_millisec);
-         startDate = new Date(new Date().getTime() + 5000);
-         endDate   = new Date(new Date().getTime() + 7000);
+         startDate = new Date(startDateStr);
+         endDate   = new Date(endDateStr);
+         // startDate = new Date(new Date().getTime());
+         // endDate   = new Date(new Date().getTime());
+
+        console.log(`currrent date in watering: ${currentDate}`);
 
         if ((startDate > currentDate && endDate > currentDate && !isNaN(startDate) && !isNaN(endDate)) || (fk_field && humidity && type == WateringConstants.humidityWateringType)) {
             requestJson['action'] = action;
