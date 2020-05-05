@@ -50,9 +50,9 @@ router.post('/schedule', (req, res, next) => {
          // startDate = new Date(new Date().getTime());
          // endDate   = new Date(new Date().getTime());
 
-        console.log(`currrent date in watering: ${currentDate}`);
+        console.log(`currrent date in watering: ${currentDate}`)
 
-        if ((startDate > currentDate && endDate > currentDate && !isNaN(startDate) && !isNaN(endDate)) || (fk_field && humidity && type == WateringConstants.humidityWateringType)) {
+        if ((startDate.getTime() > currentDate.getTime() && endDate.getTime() > currentDate.getTime() && !isNaN(startDate) && !isNaN(endDate)) || (fk_field && humidity && type == WateringConstants.humidityWateringType)) {
             requestJson['action'] = action;
             requestJson['fk_field'] = fk_field;
             requestJson['startDate'] = startDate;
