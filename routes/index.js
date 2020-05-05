@@ -348,11 +348,13 @@ router.get('/addFielddddd', async (req, res, next) => {
 
     let tap1 = await Tap.create({
         Name: "tap1",
+        Number: 1,
         ControllerID: "controller1",
     });
 
     let tap2 = await Tap.create({
         Name: "tap2",
+        Number: 2,
         ControllerID: "controller1",
     });
 

@@ -10,7 +10,8 @@ module.exports = (sequelize, type) => {
             type: type.BOOLEAN,
             defaultValue: '0'
         },
-        ControllerID: type.STRING
+        ControllerID: type.STRING,
+        Number: type.INTEGER
     });
 
     Tap.associate = (models) => {
