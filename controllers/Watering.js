@@ -1,7 +1,8 @@
 let models            = require('../models'),
     utils             = require('../common/Helpers/Utils/utils'),
     WateringError     = require('../common/Error/WateringSessionError'),
-    wateringConstants = require('../common/constants/watering');
+    wateringConstants = require('../common/constants/watering'),
+    wateringHelper    = require('../common/Helpers/watering');
 
 let executewateringFlow = async (action, type, WateringSessionModle) => {
     let currentPumpModelArray     = [],
@@ -156,9 +157,9 @@ let sendFieldDetailData = async (req, res) => {
         fieldDataArray.push({
             Id: field.ID,
             Name: field.Name,
-            Humidities: getHumidityArray(HumiditySliceModel, field.ID),
-            Temperatures: getTemperatureArray(TemperatureSliceModel),
-            WateringSessions: getWateringSessions(WateringSessionModel, field.ID)
+            Humidities: wateringHelper.getHumidityArray(HumiditySliceModel, field.ID),
+            Temperatures: wateringHelper.getTemperatureArray(TemperatureSliceModel),
+            WateringSessions: wateringHelper.getWateringSessions(WateringSessionModel, field.ID)
         });
     });
 
@@ -188,12 +189,13 @@ let startWatering = async (req, requestJson) => {
                 req.app.schedulejob.scheduleJob(WateringSessionModle.ID + wateringConstants.wateringStartSign, requestJson.startDate, function(){
                     let res = executewateringFlow(wateringConstants.actionOpen, wateringConstants.dateWateringType, WateringSessionModle);
 
+                    req.app.io.emit('watering', {open: true, fieldNumber: WateringSessionModle.Field.Number});
                     sendWateringResponseToClient(res);
                 });
 
                 req.app.schedulejob.scheduleJob(WateringSessionModle.ID + wateringConstants.wateringEndSign, requestJson.endDate, function(){
                     let res = executewateringFlow(wateringConstants.actionClose, wateringConstants.dateWateringType, WateringSessionModle);
-
+                    req.app.io.emit('watering', {open: true});
                     sendWateringResponseToClient(res);
                 });
             }
@@ -203,17 +205,8 @@ let startWatering = async (req, requestJson) => {
     }
 };
 
-let cancelWatering = async (req, wateringId) => {
-    let WateringSessionModel = null,
-        startJobName         = wateringId + wateringConstants.wateringStartSign,
-        endJobName           = wateringId + wateringConstants.wateringEndSign,
-        startJob             = null,
-        endJob               = null,
-        startJobCancelStatus = false,
-        endJobCancelStatus   = false;
-
-    var y = req.app.schedulejob.scheduledJobs['job'].cancel();
-
+let cancelByWateringId = async (req, wateringId) => {
+    let WateringSessionModel = null;
 
     WateringSessionModel = await models.WateringSession.findOne({
         where: {
@@ -221,28 +214,66 @@ let cancelWatering = async (req, wateringId) => {
         }
     });
 
-    if (WateringSessionModel) {
-        startJob = req.app.schedulejob.scheduledJobs[startJobName];
-        endJob   = req.app.schedulejob.scheduledJobs[endJobName];
+    return await cancelWatering(req, WateringSessionModel);
+};
+
+
+let cancelWatering = async (req, WateringModel) => {
+    let startJobName         = null,
+        endJobName           = null,
+        startJob             = null,
+        endJob               = null,
+        canceled             = false,
+        startJobCancelStatus = false,
+        endJobCancelStatus   = false;
+
+    if (WateringModel && !WateringModel.InProgress) {
+        return true;
+    } else if (WateringModel) {
+        startJobName = WateringModel.ID + wateringConstants.wateringStartSign;
+        endJobName   = WateringModel.ID + wateringConstants.wateringEndSign;
+        startJob     = req.app.schedulejob.scheduledJobs[startJobName];
+        endJob       = req.app.schedulejob.scheduledJobs[endJobName];
 
         if (startJob) {
             startJobCancelStatus = startJob.cancel();
         }
-
         if (endJob) {
             endJobCancelStatus = endJob.cancel();
         }
+
+        await WateringModel.update({
+            InProgress: "0"
+        });
+
+        canceled = true;
     }
 
-    return {
-        startJobCancelStatus: startJobCancelStatus,
-        endJobCancelStatus: endJobCancelStatus
-    };
+    return canceled;
+};
+
+let cancelByFieldNumber = async (req, fieldNumber) => {
+    let WateringModel = await wateringHelper.getWateringSessionByFieldNumber('1', fieldNumber);
+
+    return await cancelWatering(req, WateringModel);
+};
+
+let checkHumidityWateringByFieldNumber = async (req, fieldNumber, humidity) => {
+    let WateringModel = await wateringHelper.getWateringSessionByFieldNumber('1', fieldNumber);
+
+    if (WateringModel && humidity >= WateringModel.Humidity) {
+        return await cancelWatering(req, WateringModel);
+    } else {
+        return false;
+    }
 };
 
 module.exports = {
-    startWatering        : startWatering,
-    cancelWatering       : cancelWatering,
-    getInProcessWatering : getInProcessWatering,
-    sendFieldDetailData  : sendFieldDetailData
+    startWatering         : startWatering,
+    cancelWatering        : cancelWatering,
+    cancelByWateringId    : cancelByWateringId,
+    getInProcessWatering  : getInProcessWatering,
+    sendFieldDetailData   : sendFieldDetailData,
+    cancelByFieldNumber   : cancelByFieldNumber,
+    checkHumidityWateringByFieldNumber : checkHumidityWateringByFieldNumber
 };

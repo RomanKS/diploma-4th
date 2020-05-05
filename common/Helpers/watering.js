@@ -1,3 +1,5 @@
+let models = require('../../models');
+
 let getHumidityArray = (HumiditySliceModel, currentFieldId) => {
     let arrayOfHumidityForField = HumiditySliceModel.filter(humidity => humidity.FK_Field == currentFieldId),
         finalHumidityArray      = [];
@@ -37,8 +39,8 @@ let getWateringSessions = (WateringSessionModel, currentFieldId) => {
         arrayOfWateringSessionsForField.forEach((wateringSession) => {
             finalWateringArray.push({
                 Id: wateringSession.ID,
-                StartTime: wateringSession.StartDate,
-                EndTime: wateringSession.EndDate,
+                StartTime: new Date(wateringSession.StartDate).getTime(),
+                EndTime: new Date(wateringSession.EndDate).getTime(),
                 RequiredHumidity: wateringSession.Humidity,
                 InProgress: wateringSession.InProgress
             });
@@ -48,9 +50,31 @@ let getWateringSessions = (WateringSessionModel, currentFieldId) => {
     return finalWateringArray;
 };
 
+let getWateringSessionByFieldNumber = async (inProgressFalg, fieldNumber) => {
+    let WateringModel = null,
+        FieldModel    = await models.Field.findAll({
+        where: {
+            Number: fieldNumber
+        }
+    });
+
+
+    if (FieldModel && FieldModel[0]) {
+        WateringModel = await models.WateringSession.findAll({
+            where: {
+                FK_Field: FieldModel[0].ID,
+                InProgress: "1"
+            }
+        });
+
+        return WateringModel && WateringModel[0] ? WateringModel[0] : null;
+    }
+};
+
 
 module.exports = {
     getHumidityArray : getHumidityArray,
     getTemperatureArray : getTemperatureArray,
-    getWateringSessions : getWateringSessions
+    getWateringSessions : getWateringSessions,
+    getWateringSessionByFieldNumber : getWateringSessionByFieldNumber
 };

@@ -40,7 +40,7 @@ router.post('/schedule', (req, res, next) => {
         action = WateringConstants.actionClose;
     }
 
-    console.log(`action after checks: ${action}`);
+    console.log(`action after checks: ${startDateStr}`);
 
 
     if ((startDateStr && endDateStr && fk_field) || (fk_field && humidity && type == WateringConstants.humidityWateringType) ) {
@@ -78,16 +78,41 @@ router.post('/schedule', (req, res, next) => {
     res.json({response: {scheduled: true}});
 });
 
+//cancel watering by watering id
 router.post('/cancelwatering', (req, res, next) => {
     let body       = req.body,
         wateringId = body.wateringId ? body.wateringId : null;
 
     if (wateringId) {
-        WateringController.cancelWatering(req, wateringId)
+        WateringController.cancelByWateringId(req, wateringId)
             .then(response => {
                 res.json(response);
             });
     }
+});
+
+//cancel watering by field number
+router.post('/cancelbyfieldnumber', async (req, res, next) => {
+    let body       = req.body,
+        fieldNumber = body.fieldNumber ? Number(body.fieldNumber) : null;
+
+    if (fieldNumber) {
+        WateringController.cancelByFieldNumber(req, fieldNumber)
+            .then(response => {
+                res.json(response);
+            });
+    }
+});
+
+router.post('/cancelbyhumidity', (req, res, next) => {
+    let body        = req.body,
+        humidity    = body.humidity ? Number(body.humidity) : null,
+        fieldNumber = body.fieldNumber ? Number(body.fieldNumber) : null;
+
+    WateringController.checkHumidityWateringByFieldNumber(req, fieldNumber, humidity)
+        .then(response => {
+            res.json(response);
+        });
 });
 
 router.get('/fielddetaildata', (req, res, next) => {

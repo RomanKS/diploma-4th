@@ -12,7 +12,7 @@ const auth = require('./auth');
 
 
 router.get('/', async (req,res,next)=>{
-
+    req.app.io.emit('response', {open: true});
 
     res.render('index', {name: 'Roman'});
 });
