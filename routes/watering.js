@@ -79,7 +79,7 @@ router.post('/schedule', (req, res, next) => {
 });
 
 //cancel watering by watering id
-router.post('/cancelwatering', (req, res, next) => {
+router.post('/cancelbyid', (req, res, next) => {
     let body       = req.body,
         wateringId = body.wateringId ? body.wateringId : null;
 

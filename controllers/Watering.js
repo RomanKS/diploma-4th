@@ -195,7 +195,7 @@ let startWatering = async (req, requestJson) => {
 
                 req.app.schedulejob.scheduleJob(WateringSessionModle.ID + wateringConstants.wateringEndSign, requestJson.endDate, function(){
                     let res = executewateringFlow(wateringConstants.actionClose, wateringConstants.dateWateringType, WateringSessionModle);
-                    req.app.io.emit('watering', {open: true});
+                    req.app.io.emit('watering', {open: false, fieldNumber: WateringSessionModle.Field.Number});
                     sendWateringResponseToClient(res);
                 });
             }
@@ -228,7 +228,7 @@ let cancelWatering = async (req, WateringModel) => {
         endJobCancelStatus   = false;
 
     if (WateringModel && !WateringModel.InProgress) {
-        return true;
+        return {canceled: true};
     } else if (WateringModel) {
         startJobName = WateringModel.ID + wateringConstants.wateringStartSign;
         endJobName   = WateringModel.ID + wateringConstants.wateringEndSign;
@@ -249,7 +249,7 @@ let cancelWatering = async (req, WateringModel) => {
         canceled = true;
     }
 
-    return canceled;
+    return {canceled: canceled};
 };
 
 let cancelByFieldNumber = async (req, fieldNumber) => {
