@@ -94,7 +94,7 @@ $( document ).ready(function() {
             }
 
 
-        })(watering);
+        });
     });
 
     // $.post("http://localhost:3000/fieldmap/inprogresswatering", {}, (res, status) => {
