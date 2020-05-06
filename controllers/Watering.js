@@ -137,7 +137,11 @@ let getInProcessWatering = async () => {
   let inProgressWatering = await models.WateringSession.findAll({
       where: {
           InProgress: '1'
-      }
+      },
+      include: [{
+          model: models.Field,
+          as: 'Field'
+      }]
   });
 
   return inProgressWatering && inProgressWatering.length ? inProgressWatering[0] : null;
