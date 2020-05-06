@@ -2,15 +2,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 80%;
+    width: 1400px;
     margin: 0 auto;
 }
 
 .map-item {
     height: 400px;
-    width: 100%;
+    width: 1000px;
 }
-
 
 .field-stack-container {
     display: flex;

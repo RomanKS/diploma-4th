@@ -29,10 +29,12 @@ router.post('/registration', (req, res, next) => {
           password  : password
       };
 
-      if (userType == 'worker') {
-          UserController.workerRegistration(res, user);
-      } else if (userType == 'admin') {
-          UserController.adminRegistration(res, user);
+      if (userType == 'Manager') {
+          UserController.managerRegistration(res, user);
+      } else if (userType == 'Spectator') {
+          UserController.spectatorRegistration(res, user);
+      } else {
+          return res.json({error: true});
       }
   } else {
       return res.json({error: true});

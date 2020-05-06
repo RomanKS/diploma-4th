@@ -21,7 +21,9 @@ let registration = async (res, user, type) => {
             });
 
             if (UserModel) {
-                return res.json({ user: UserModel.toAuthJSON() });
+                let responseJson = await UserModel.toAuthJSON(model.UserType);
+
+                return res.json({ user: responseJson });
             } else {
                 return res.json({error: true});
             }
@@ -33,15 +35,15 @@ let registration = async (res, user, type) => {
     }
 };
 
-let workerRegistration = (res, user) => {
-    registration(res, user, "worker");
+let managerRegistration = (res, user) => {
+    registration(res, user, "Manager");
 };
 
-let adminRegistration = (res, user) => {
-    registration(res, user, "admin");
+let spectatorRegistration = (res, user) => {
+    registration(res, user, "Spectator");
 };
 
 module.exports = {
-    workerRegistration : workerRegistration,
-    adminRegistration : adminRegistration
+    managerRegistration : managerRegistration,
+    spectatorRegistration : spectatorRegistration
 };
