@@ -6,6 +6,7 @@ module.exports = (sequelize, type) => {
             primaryKey: true
         },
         Name: type.STRING,
+        ShortName: type.STRING,
         Number: type.INTEGER
     });
 

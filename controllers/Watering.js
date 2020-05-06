@@ -161,6 +161,7 @@ let sendFieldDetailData = async (req, res) => {
         fieldDataArray.push({
             Id: field.ID,
             Name: field.Name,
+            ShortName: field.ShortName,
             Humidities: wateringHelper.getHumidityArray(HumiditySliceModel, field.ID),
             Temperatures: wateringHelper.getTemperatureArray(TemperatureSliceModel),
             WateringSessions: wateringHelper.getWateringSessions(WateringSessionModel, field.ID)

@@ -277,54 +277,63 @@ router.get('/addFielddddd', async (req, res, next) => {
 
     let field1 = await Field.create({
         Name: "field1",
+        ShortName: "Sh1",
         Number: 1,
         ID: "dc8d7380-87a6-11ea-a291-c7c9efb4ebe5"
     });
 
     let field2 = await Field.create({
         Name: "field2",
+        ShortName: "Sh2",
         Number: 2,
         ID: "8b077b70-87c2-11ea-a63e-c330d02c972b"
     });
 
     await Field.create({
         Name: "field3",
+        ShortName: "Sh3",
         Number: 3,
         ID: "8b0a88b0-87c2-11ea-a63e-c330d02c972b"
     });
 
     await Field.create({
         Name: "field4",
+        ShortName: "Sh4",
         Number: 4,
         ID: "8b0b4c00-87c2-11ea-a63e-c330d02c972b"
     });
 
     await Field.create({
         Name: "field5",
+        ShortName: "Sh5",
         Number: 5,
         ID: "8b0be840-87c2-11ea-a63e-c330d02c972b"
     });
 
     await Field.create({
         Name: "field6",
+        ShortName: "Sh6",
         Number: 6,
         ID: "8b0c8480-87c2-11ea-a63e-c330d02c972b"
     });
 
     await Field.create({
         Name: "field7",
+        ShortName: "Sh7",
         Number: 7,
         ID: "8b0cd2a0-87c2-11ea-a63e-c330d02c972b"
     });
 
     await Field.create({
         Name: "field8",
+        ShortName: "Sh8",
         Number: 8,
         ID: "8b0d6ee0-87c2-11ea-a63e-c330d02c972b"
     });
 
     await Field.create({
         Name: "field9",
+        ShortName: "Sh9",
         Number: 9,
         ID: "8b0de410-87c2-11ea-a63e-c330d02c972b"
     });
@@ -381,12 +390,12 @@ router.get('/addFielddddd', async (req, res, next) => {
 router.get('/addUserType', (req, res, next) => {
     UserType.create({
         Code: 'code',
-        Type: 'worker'
+        Type: 'Spectator'
     });
 
     UserType.create({
         Code: 'code',
-        Type: 'admin'
+        Type: 'Manager'
     });
 
     res.end();
