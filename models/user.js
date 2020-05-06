@@ -33,11 +33,33 @@ module.exports = (sequelize, type) => {
             exp: parseInt(expirationDate.getTime() / 1000, 10),
         }, 'secret');
     };
-    User.prototype.toAuthJSON = function() {
+
+    User.prototype.getUserType = async function (UserType) {
+        let UserTypeModel = await UserType.findOne({
+            where: {
+                ID: this.FK_UserType
+            }
+        });
+
+        if (UserTypeModel) {
+            return UserTypeModel;
+        } else {
+            return null;
+        }
+    };
+
+    User.prototype.getUserTypeNumber = async function (UserType) {
+        let UserTypeModel = await this.getUserType(UserType);
+
+        return UserTypeModel.Type;
+    };
+
+    User.prototype.toAuthJSON = async function(UserType) {
         return {
             _id: this.ID,
             email: this.UserName,
-            token: this.generateJWT(),
+            userType: await this.getUserTypeNumber(UserType),
+            token: this.generateJWT()
         };
     };
 

@@ -3,9 +3,26 @@ let express            = require('express'),
     WateringConstants  = require('../common/constants/watering'),
     WateringController = require('../controllers/Watering'),
     Error              = require('../common/Error/Error'),
-    log                = new Error(`'Watering' route`);
+    log                = new Error(`'Watering' route`),
+    middleware         = require('../common/middleware/watering/watering');
+    auth               = require('./auth');
 
-router.post('/schedule', (req, res, next) => {
+
+router.post('/schedulebydate', middleware.checkScheduleWateringByDateArguments, (req, res, next) => {
+    WateringController.startWateringByDate(req, res.locals.requestJson)
+        .then(resp => {
+            return res.json(resp);
+        });
+});
+
+router.post('/schedulebyhumidity', middleware.checkScheduleWateringByHumidityArguments, (req, res, next) => {
+    WateringController.startWateringByHumidity(req, res.locals.requestJson)
+        .then(resp => {
+           return res.json(resp);
+        });
+});
+
+router.post('/schedule', auth.required, (req, res, next) => {
     let body           = req.body,
         startDateStr   = body.startDateStr ? body.startDateStr.trim() : null,
         endDateStr     = body.endDateStr ? body.endDateStr.trim() : null,
@@ -28,17 +45,17 @@ router.post('/schedule', (req, res, next) => {
     console.log(`action in router: ${action}`);
 
 
-    if (type == WateringConstants.humidityWateringType) {
-        type = WateringConstants.humidityWateringType;
-    } else {
-        type = WateringConstants.dateWateringType;
-    }
-
-    if (action === WateringConstants.actionOpen) {
-        action = WateringConstants.actionOpen;
-    } else {
-        action = WateringConstants.actionClose;
-    }
+    // if (type == WateringConstants.humidityWateringType) {
+    //     type = WateringConstants.humidityWateringType;
+    // } else {
+    //     type = WateringConstants.dateWateringType;
+    // }
+    //
+    // if (action === WateringConstants.actionOpen) {
+    //     action = WateringConstants.actionOpen;
+    // } else {
+    //     action = WateringConstants.actionClose;
+    // }
 
     console.log(`action after checks: ${startDateStr}`);
 
@@ -79,7 +96,7 @@ router.post('/schedule', (req, res, next) => {
 });
 
 //cancel watering by watering id
-router.post('/cancelbyid', (req, res, next) => {
+router.post('/cancelbyid', auth.required, (req, res, next) => {
     let body       = req.body,
         wateringId = body.wateringId ? body.wateringId : null;
 
@@ -92,7 +109,7 @@ router.post('/cancelbyid', (req, res, next) => {
 });
 
 //cancel watering by field number
-router.post('/cancelbyfieldnumber', async (req, res, next) => {
+router.post('/cancelbyfieldnumber', auth.required, async (req, res, next) => {
     let body       = req.body,
         fieldNumber = body.fieldNumber ? Number(body.fieldNumber) : null;
 
@@ -104,7 +121,7 @@ router.post('/cancelbyfieldnumber', async (req, res, next) => {
     }
 });
 
-router.post('/cancelbyhumidity', (req, res, next) => {
+router.post('/cancelbyhumidity', auth.required, (req, res, next) => {
     let body        = req.body,
         humidity    = body.humidity ? Number(body.humidity) : null,
         fieldNumber = body.fieldNumber ? Number(body.fieldNumber) : null;
@@ -115,7 +132,7 @@ router.post('/cancelbyhumidity', (req, res, next) => {
         });
 });
 
-router.get('/fielddetaildata', (req, res, next) => {
+router.get('/fielddetaildata', auth.required, (req, res, next) => {
     WateringController.sendFieldDetailData(req, res);
 });
 

@@ -1,5 +1,6 @@
 let express        = require('express'),
     router         = express.Router(),
+    models         = require('../models');
     UserController = require('../controllers/User');
 const passport     = require('passport'),
       auth         = require('./auth');
@@ -38,16 +39,18 @@ router.post('/registration', (req, res, next) => {
   }
 });
 
-router.post('/login', auth.optional, (req, res, next) => {
+router.post('/login', auth.optional,  (req, res, next) => {
     const { body: { user } } = req;
 
-    return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
+    return passport.authenticate('local', { session: false }, async (err, passportUser, info) => {
         if(err) {
             return next(err);
         }
 
         if(passportUser) {
-            return res.json({ user: passportUser.toAuthJSON() });
+            let responseJson = await passportUser.toAuthJSON(models.UserType);
+
+            return res.json({ user: responseJson });
         }
 
         return res.json({error: true});

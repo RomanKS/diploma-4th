@@ -12,18 +12,18 @@ router.get('/', async (req, res, next) => {
     res.render('fieldmap');
 });
 
-router.post('/inprogresswatering', (req, res, next) => {
-    let inProgressWatering = WateringController.getInProcessWatering();
-
-    if (inProgressWatering) {
-        inProgressWatering.then(resp => {
-            res.json(JSON.stringify(resp));
-        });
-        return;
-    }
-
-    res.json(null);
-});
+// router.post('/inprogresswatering', (req, res, next) => {
+//     let inProgressWatering = WateringController.getInProcessWatering();
+//
+//     if (inProgressWatering) {
+//         inProgressWatering.then(resp => {
+//             res.json(JSON.stringify(resp));
+//         });
+//         return;
+//     }
+//
+//     res.json(null);
+// });
 
 router.get('/getfielddata', async (req, res, next) => {
     let fieldsData   = FieldModel.findAll(),

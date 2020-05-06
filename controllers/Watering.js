@@ -4,7 +4,7 @@ let models            = require('../models'),
     wateringConstants = require('../common/constants/watering'),
     wateringHelper    = require('../common/Helpers/watering');
 
-let executewateringFlow = async (action, type, WateringSessionModle) => {
+let startWatering = async (action, type, WateringSessionModle) => {
     let currentPumpModelArray     = [],
         currentPumpModel          = null,
         fieldID                   = null,
@@ -166,47 +166,100 @@ let sendFieldDetailData = async (req, res) => {
     res.json(fieldDataArray);
 };
 
-let startWatering = async (req, requestJson) => {
-    let WateringSessionModle                  = null,
-        field                                 = null,
+
+let startWateringByDate = async (req, requestJson) => {
+    let WateringModel                         = await createAndGetWateringSessionModelWithDepend(requestJson),
+        responseJson                          = null,
         arrayOfTapsAssosiatedWithCurrentField = [];
 
-    field = await models.Field.findOne({
-        where: {
-            ID: requestJson.fk_field
+    if (WateringModel) {
+        arrayOfTapsAssosiatedWithCurrentField = await wateringHelper.getTapsNumberConnectingToField(WateringModel.Field.ID);
+
+        if (arrayOfTapsAssosiatedWithCurrentField.length) {
+            req.app.schedulejob.scheduleJob(WateringModel.ID + wateringConstants.wateringStartSign, requestJson.startDate, function(){
+                responseJson = startWatering(wateringConstants.actionOpen, wateringConstants.dateWateringType, WateringModel);
+
+                req.app.io.emit('watering', {open: true, fieldNumber: WateringModel.Field.Number, tapsArray: arrayOfTapsAssosiatedWithCurrentField});
+                sendWateringResponseToClient(responseJson);
+            });
+
+            req.app.schedulejob.scheduleJob(WateringModel.ID + wateringConstants.wateringEndSign, requestJson.endDate, function(){
+                responseJson = startWatering(wateringConstants.actionClose, wateringConstants.dateWateringType, WateringModel);
+
+                req.app.io.emit('watering', {open: false, fieldNumber: WateringModel.Field.Number, tapsArray: arrayOfTapsAssosiatedWithCurrentField});
+                sendWateringResponseToClient(responseJson);
+            });
+
+            return {wateringSchedule: true};
         }
-    });
-
-    if (field) {
-        WateringSessionModle = await createAndGetWateringSessionModelWithDepend(requestJson);
-
-        if (WateringSessionModle) {
-            arrayOfTapsAssosiatedWithCurrentField = await wateringHelper.getTapsNumberConnectingToField(WateringSessionModle.Field.ID);
-
-            if (requestJson.type === wateringConstants.humidityWateringType) {
-                console.log(`action inside: ${requestJson.action}`);
-                let res = executewateringFlow(requestJson.action, requestJson.type, WateringSessionModle);
-
-                sendWateringResponseToClient(res);
-            } else if (requestJson.type === wateringConstants.dateWateringType) {
-                req.app.schedulejob.scheduleJob(WateringSessionModle.ID + wateringConstants.wateringStartSign, requestJson.startDate, function(){
-                    let res = executewateringFlow(wateringConstants.actionOpen, wateringConstants.dateWateringType, WateringSessionModle);
-
-                    req.app.io.emit('watering', {open: true, fieldNumber: WateringSessionModle.Field.Number, tapsArray: arrayOfTapsAssosiatedWithCurrentField});
-                    sendWateringResponseToClient(res);
-                });
-
-                req.app.schedulejob.scheduleJob(WateringSessionModle.ID + wateringConstants.wateringEndSign, requestJson.endDate, function(){
-                    let res = executewateringFlow(wateringConstants.actionClose, wateringConstants.dateWateringType, WateringSessionModle);
-                    req.app.io.emit('watering', {open: false, fieldNumber: WateringSessionModle.Field.Number, tapsArray: arrayOfTapsAssosiatedWithCurrentField});
-                    sendWateringResponseToClient(res);
-                });
-            }
-        }
-    } else {
-        console.log(`no field with current fk_field`);
     }
+
+    return {wateringSchedule: false};
 };
+
+let startWateringByHumidity = async (req, requestJson) => {
+    let WateringModel                         = await createAndGetWateringSessionModelWithDepend(requestJson),
+        responseJson                          = null,
+        arrayOfTapsAssosiatedWithCurrentField = [];
+
+    if (WateringModel) {
+        arrayOfTapsAssosiatedWithCurrentField = await wateringHelper.getTapsNumberConnectingToField(WateringModel.Field.ID);
+
+        if (arrayOfTapsAssosiatedWithCurrentField.length) {
+            responseJson = startWatering(wateringConstants.actionOpen, wateringConstants.humidityWateringType, WateringModel);
+
+            req.app.io.emit('watering', {open: true, fieldNumber: WateringModel.Field.Number, tapsArray: arrayOfTapsAssosiatedWithCurrentField});
+            sendWateringResponseToClient(responseJson);
+
+            return {wateringSchedule: true};
+        }
+    }
+
+    return {wateringSchedule: false};
+};
+
+
+// let startWatering2 = async (req, requestJson) => {
+//     let WateringSessionModle                  = null,
+//         field                                 = null,
+//         arrayOfTapsAssosiatedWithCurrentField = [];
+//
+//     field = await models.Field.findOne({
+//         where: {
+//             ID: requestJson.fk_field
+//         }
+//     });
+//
+//     if (field) {
+//         WateringSessionModle = await createAndGetWateringSessionModelWithDepend(requestJson);
+//
+//         if (WateringSessionModle) {
+//             arrayOfTapsAssosiatedWithCurrentField = await wateringHelper.getTapsNumberConnectingToField(WateringSessionModle.Field.ID);
+//
+//             if (requestJson.type === wateringConstants.humidityWateringType) {
+//                 console.log(`action inside: ${requestJson.action}`);
+//                 let res = executewateringFlow(requestJson.action, requestJson.type, WateringSessionModle);
+//
+//                 sendWateringResponseToClient(res);
+//             } else if (requestJson.type === wateringConstants.dateWateringType) {
+//                 req.app.schedulejob.scheduleJob(WateringSessionModle.ID + wateringConstants.wateringStartSign, requestJson.startDate, function(){
+//                     let res = executewateringFlow(wateringConstants.actionOpen, wateringConstants.dateWateringType, WateringSessionModle);
+//
+//                     req.app.io.emit('watering', {open: true, fieldNumber: WateringSessionModle.Field.Number, tapsArray: arrayOfTapsAssosiatedWithCurrentField});
+//                     sendWateringResponseToClient(res);
+//                 });
+//
+//                 req.app.schedulejob.scheduleJob(WateringSessionModle.ID + wateringConstants.wateringEndSign, requestJson.endDate, function(){
+//                     let res = executewateringFlow(wateringConstants.actionClose, wateringConstants.dateWateringType, WateringSessionModle);
+//                     req.app.io.emit('watering', {open: false, fieldNumber: WateringSessionModle.Field.Number, tapsArray: arrayOfTapsAssosiatedWithCurrentField});
+//                     sendWateringResponseToClient(res);
+//                 });
+//             }
+//         }
+//     } else {
+//         console.log(`no field with current fk_field`);
+//     }
+// };
 
 let cancelByWateringId = async (req, wateringId) => {
     let WateringSessionModel = null;
@@ -272,7 +325,8 @@ let checkHumidityWateringByFieldNumber = async (req, fieldNumber, humidity) => {
 };
 
 module.exports = {
-    startWatering         : startWatering,
+    startWateringByDate   : startWateringByDate,
+    startWateringByHumidity : startWateringByHumidity,
     cancelWatering        : cancelWatering,
     cancelByWateringId    : cancelByWateringId,
     getInProcessWatering  : getInProcessWatering,
