@@ -34,14 +34,19 @@ let getTemperatureArray = (TemperatureSliceModel) => {
 
 let getWateringSessions = (WateringSessionModel, currentFieldId) => {
     let arrayOfWateringSessionsForField = WateringSessionModel.filter(watering => watering.FK_Field == currentFieldId),
+        startWateringDate               = null,
+        endWateringDate                 = null,
         finalWateringArray              = [];
 
     if (arrayOfWateringSessionsForField) {
         arrayOfWateringSessionsForField.forEach((wateringSession) => {
+            startWateringDate = wateringSession.StartDate ? new Date(wateringSession.StartDate).toLocaleString('en-US', {timeZone: 'Europe/Moscow'}) : null;
+            endWateringDate   = wateringSession.EndDate ? new Date(wateringSession.EndDate).toLocaleString('en-US', {timeZone: 'Europe/Moscow'}) : null;
+
             finalWateringArray.push({
                 Id: wateringSession.ID,
-                StartTime: new Date(wateringSession.StartDate).toLocaleString('en-US', {timeZone: 'Europe/Moscow'}),
-                EndTime: new Date(wateringSession.EndDate).toLocaleString('en-US', {timeZone: 'Europe/Moscow'}),
+                StartTime: startWateringDate,
+                EndTime: endWateringDate,
                 RequiredHumidity: wateringSession.Humidity,
                 InProgress: wateringSession.InProgress
             });
